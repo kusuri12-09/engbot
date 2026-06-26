@@ -1,2 +1,4 @@
 .env
 SPEC.md
+node_modules/
+/data/

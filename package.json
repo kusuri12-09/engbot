@@ -1,0 +1,31 @@
+{
+  "name": "engbot",
+  "version": "1.0.0",
+  "description": "Discord bot for English word quizzes",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy:commands": "node src/deploy-commands.js",
+    "data:json": "node src/data/export-json.js",
+    "db:init": "node src/db/init.js",
+    "db:seed": "npm run data:json && node src/db/seed.js"
+  },
+  "keywords": [
+    "discord",
+    "english",
+    "quiz"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1"
+  },
+  "overrides": {
+    "undici": "6.27.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
