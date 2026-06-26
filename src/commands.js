@@ -23,7 +23,7 @@ const commands = [
       option
         .setName('언어')
         .setDescription('정답으로 입력할 언어를 선택하세요.')
-        .setRequired(true)
+        .setRequired(false)
         .addChoices(
           { name: '한국어', value: LANGUAGE_CHOICES.KOREAN },
           { name: '영어', value: LANGUAGE_CHOICES.ENGLISH }

@@ -87,14 +87,21 @@ function normalizeAnswer(value) {
 }
 
 function isCorrectAnswer(word, language, answer) {
-  const expected =
-    language === LANGUAGE_CHOICES.KOREAN ? word.kor : word.eng;
+  if (language === LANGUAGE_CHOICES.KOREAN) {
+    const acceptedAnswers = word.kor
+      .split(',')
+      .map(normalizeAnswer)
+      .filter(Boolean);
 
-  return normalizeAnswer(answer) === normalizeAnswer(expected);
+    return acceptedAnswers.includes(normalizeAnswer(answer));
+  }
+
+  return normalizeAnswer(answer) === normalizeAnswer(word.eng);
 }
 
 async function handleWordCommand(interaction) {
-  const language = interaction.options.getString('언어', true);
+  const language =
+    interaction.options.getString('언어') || LANGUAGE_CHOICES.ENGLISH;
   const word = await getRandomWord();
 
   if (!word) {
