@@ -11,16 +11,16 @@ alter table word
 alter table word
   drop constraint if exists word_kor_key;
 
-create table if not exists discord_guild (
+create table if not exists discord_user (
   id bigserial primary key,
-  guild_id varchar(32) unique not null,
-  name varchar(255) not null,
-  owner_id varchar(32),
-  member_count int,
-  is_active boolean not null default true,
-  joined_at timestamptz not null default now(),
-  left_at timestamptz,
-  updated_at timestamptz not null default now()
+  user_id varchar(32) unique not null,
+  username varchar(255) not null,
+  global_name varchar(255),
+  last_context varchar(50),
+  last_guild_id varchar(32),
+  last_channel_id varchar(32),
+  first_seen_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now()
 );
 
 create table if not exists passage (

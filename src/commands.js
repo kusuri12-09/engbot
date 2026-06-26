@@ -1,4 +1,6 @@
 const {
+  ApplicationIntegrationType,
+  InteractionContextType,
   SlashCommandBuilder
 } = require('discord.js');
 
@@ -11,6 +13,12 @@ const commands = [
   new SlashCommandBuilder()
     .setName('단어')
     .setDescription('영어 단어 퀴즈를 요청합니다.')
+    .setIntegrationTypes(ApplicationIntegrationType.UserInstall)
+    .setContexts(
+      InteractionContextType.BotDM,
+      InteractionContextType.PrivateChannel,
+      InteractionContextType.Guild
+    )
     .addStringOption((option) =>
       option
         .setName('언어')
@@ -24,6 +32,12 @@ const commands = [
   new SlashCommandBuilder()
     .setName('퀴즈')
     .setDescription('영어 퀴즈를 요청합니다.')
+    .setIntegrationTypes(ApplicationIntegrationType.UserInstall)
+    .setContexts(
+      InteractionContextType.BotDM,
+      InteractionContextType.PrivateChannel,
+      InteractionContextType.Guild
+    )
 ];
 
 module.exports = {

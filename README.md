@@ -26,7 +26,7 @@ npm run db:init
 npm run deploy:commands
 ```
 
-명령어는 전역 명령어로 등록됩니다. 봇이 초대된 Discord 서버 정보는 `discord_guild` 테이블에 저장됩니다.
+명령어는 사용자 설치 전용 전역 명령어로 등록됩니다. OAuth2 설치 방식은 `User Install`을 사용하고, scope는 `applications.commands`를 설정합니다. 명령어를 실행한 사용자 정보는 `discord_user` 테이블에 저장됩니다.
 
 ## 실행
 

@@ -1,5 +1,6 @@
 const {
   ActionRowBuilder,
+  ApplicationIntegrationType,
   ButtonBuilder,
   ButtonStyle,
   Client,
@@ -12,7 +13,7 @@ const {
 } = require('discord.js');
 const { discordToken } = require('./config');
 const { LANGUAGE_CHOICES } = require('./commands');
-const { markGuildInactive, upsertGuild } = require('./db/guilds');
+const { upsertUserInstall } = require('./db/users');
 const { getRandomWord, getWordById } = require('./db/words');
 const pool = require('./db/pool');
 
@@ -25,8 +26,43 @@ const ANSWER_BUTTON_PREFIX = 'word-open';
 const MODAL_PREFIX = 'word-answer';
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.DirectMessages
+  ]
 });
+
+function getAuthorizingUserId(interaction) {
+  const owners = interaction.authorizingIntegrationOwners;
+  const userInstallKey = String(ApplicationIntegrationType.UserInstall);
+
+  if (!owners) {
+    return interaction.user.id;
+  }
+
+  if (owners instanceof Map) {
+    return owners.get(ApplicationIntegrationType.UserInstall) ||
+      owners.get(userInstallKey) ||
+      interaction.user.id;
+  }
+
+  return owners[ApplicationIntegrationType.UserInstall] ||
+    owners[userInstallKey] ||
+    interaction.user.id;
+}
+
+async function saveInteractionUser(interaction) {
+  await upsertUserInstall({
+    userId: getAuthorizingUserId(interaction),
+    username: interaction.user.username,
+    globalName: interaction.user.globalName,
+    context: interaction.context === null || interaction.context === undefined
+      ? null
+      : String(interaction.context),
+    guildId: interaction.guildId,
+    channelId: interaction.channelId
+  });
+}
 
 function buildWordPrompt(word, language) {
   if (language === LANGUAGE_CHOICES.KOREAN) {
@@ -170,34 +206,12 @@ async function handleWordAnswer(interaction) {
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user.tag}`);
-
-  readyClient.guilds.cache.forEach((guild) => {
-    upsertGuild(guild).catch((error) => {
-      console.error(`Failed to sync guild ${guild.id}`, error);
-    });
-  });
-});
-
-client.on(Events.GuildCreate, async (guild) => {
-  try {
-    await upsertGuild(guild);
-    console.log(`Joined guild ${guild.name} (${guild.id})`);
-  } catch (error) {
-    console.error(`Failed to save joined guild ${guild.id}`, error);
-  }
-});
-
-client.on(Events.GuildDelete, async (guild) => {
-  try {
-    await markGuildInactive(guild);
-    console.log(`Left guild ${guild.name} (${guild.id})`);
-  } catch (error) {
-    console.error(`Failed to mark left guild ${guild.id}`, error);
-  }
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
+    await saveInteractionUser(interaction);
+
     if (interaction.isChatInputCommand()) {
       if (interaction.commandName === COMMANDS.WORD) {
         await handleWordCommand(interaction);
